@@ -2,12 +2,12 @@
 /**
  * Plugin Name: SpaceAPI Status
  * Description: SpaceAPI-Status, Header-Anzeige und frei konfigurierbare SpaceAPI-Feld-Shortcodes.
- * Version: 1.4.0
+ * Version: 1.6.0
  * Author: Lukas Nacke
- * License: GNU GENERAL PUBLIC LICENSE
+ * License: GPL-2.0-or-later
  */
 if (!defined('ABSPATH')) exit;
-define('SPACEAPI_STATUS_VERSION','1.4.0');
+define('SPACEAPI_STATUS_VERSION','1.6.0');
 
 function spaceapi_status_defaults(){return array(
  'endpoint'=>'https://ha-werkstatt.nacke.xyz/api/spaceapi','cache_ttl'=>300,
@@ -78,9 +78,29 @@ function spaceapi_status_css(){if(is_admin())return;wp_register_style('spaceapi-
 }
 add_action('wp_enqueue_scripts','spaceapi_status_css');
 function spaceapi_status_header(){ $s=spaceapi_status_get_settings();if(empty($s['header_enabled']))return;$t=trim($s['header_title'])?:'Space Status';echo '<div class="spaceapi-header-status" role="status"><span class="spaceapi-header-status__title">'.esc_html($t).'</span><span>'.spaceapi_status_render(false).'</span></div>'; }
-function spaceapi_status_after_header(){ $s=spaceapi_status_get_settings();if(!empty($s['header_enabled'])&&$s['header_position']==='under_header')spaceapi_status_header(); }
 function spaceapi_status_after_body(){ $s=spaceapi_status_get_settings();if(!empty($s['header_enabled'])&&$s['header_position']==='after_body_open')spaceapi_status_header(); }
-add_action('get_header','spaceapi_status_after_header',20);add_action('wp_body_open','spaceapi_status_after_body',20);
+// The get_header action fires BEFORE header.php, not afterwards.
+// Buffer the full page and insert the bar after the actual closing header tag.
+function spaceapi_status_start_buffer(){
+ $s=spaceapi_status_get_settings();
+ if(is_admin()||wp_doing_ajax()||empty($s['header_enabled'])||$s['header_position']!=='under_header')return;
+ // Render BEFORE starting the output-buffer callback; never start buffers in a callback.
+ global $spaceapi_status_header_markup;
+ ob_start();
+ spaceapi_status_header();
+ $spaceapi_status_header_markup=ob_get_clean();
+ ob_start('spaceapi_status_inject_below_header');
+}
+function spaceapi_status_inject_below_header($html){
+ global $spaceapi_status_header_markup;
+ if(empty($spaceapi_status_header_markup))return $html;
+ // No WP calls, output buffering, or other side effects inside this callback.
+ return preg_replace_callback('~</header\s*>~i',function($m)use($spaceapi_status_header_markup){
+  return $m[0].$spaceapi_status_header_markup;
+ },$html,1);
+}
+add_action('template_redirect','spaceapi_status_start_buffer',0);
+add_action('wp_body_open','spaceapi_status_after_body',20);
 
 function spaceapi_status_settings(){register_setting('spaceapi_status','spaceapi_status_settings',array('type'=>'array','sanitize_callback'=>'spaceapi_status_sanitize_settings','default'=>spaceapi_status_defaults()));}
 add_action('admin_init','spaceapi_status_settings');
@@ -99,3 +119,45 @@ function spaceapi_status_page(){if(!current_user_can('manage_options'))return;$s
 <?php submit_button('Einstellungen speichern');?></form><hr><h2>Shortcodes</h2>
 <p><code>[space_status]</code> – Öffnungsstatus</p><p><code>[spaceapi field="space"]</code> – beliebiges Feld</p><p><code>[spaceapi field="state.open" label="Status"]</code> – eigenes Label</p><p><code>[spaceapi field="location.lat"]</code> – Label aus den Einstellungen</p><p><code>[spaceapi field="state.open" label="Status" fallback="Nicht verfügbar"]</code></p>
 <p>Verschachtelte Felder: <code>state.open</code>, <code>location.lat</code>; Array-Elemente: z. B. <code>temperature.0.value</code>.</p></div><?php }
+
+
+/** WordPress legacy widget, available in Appearance > Widgets and block-based widget areas. */
+class SpaceAPI_Status_Widget extends WP_Widget {
+    public function __construct() {
+        parent::__construct('spaceapi_status_widget', __('SpaceAPI Kurzstatus', 'spaceapi-status'), array(
+            'classname' => 'spaceapi_status_widget',
+            'description' => __('Zeigt den aktuellen SpaceAPI-Öffnungsstatus an.', 'spaceapi-status'),
+        ));
+    }
+
+    public function widget($args, $instance) {
+        $title = isset($instance['title']) ? $instance['title'] : __('Space Status', 'spaceapi-status');
+        echo $args['before_widget'];
+        if ($title !== '') {
+            echo $args['before_title'] . esc_html($title) . $args['after_title'];
+        }
+        echo '<div class="spaceapi-status-wrapper">' . spaceapi_status_render(false) . '</div>';
+        echo $args['after_widget'];
+    }
+
+    public function form($instance) {
+        $title = isset($instance['title']) ? $instance['title'] : __('Space Status', 'spaceapi-status');
+        ?>
+        <p>
+            <label for="<?php echo esc_attr($this->get_field_id('title')); ?>"><?php esc_html_e('Titel:', 'spaceapi-status'); ?></label>
+            <input class="widefat" id="<?php echo esc_attr($this->get_field_id('title')); ?>"
+                name="<?php echo esc_attr($this->get_field_name('title')); ?>" type="text"
+                value="<?php echo esc_attr($title); ?>">
+        </p>
+        <?php
+    }
+
+    public function update($new_instance, $old_instance) {
+        return array('title' => sanitize_text_field($new_instance['title'] ?? ''));
+    }
+}
+
+function spaceapi_status_register_widget() {
+    register_widget('SpaceAPI_Status_Widget');
+}
+add_action('widgets_init', 'spaceapi_status_register_widget');
