@@ -12,3 +12,7 @@ This Plugins, like WordPress, is licensed under the GPL.
   Übersicht unter /termine/, Kalender-Download (iCal) und Shortcode `[termine]`.
   Beschreibung in `el-team-termine/README.txt`.
 
+## Updates
+
+Die Plugins aktualisieren sich über GitHub-Releases (Tag `<plugin-ordner>/v<version>`), nicht
+über den WordPress-Marktplatz. Wie man ein Release anlegt: [RELEASING.md](RELEASING.md).

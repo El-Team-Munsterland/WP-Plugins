@@ -1,6 +1,6 @@
 Lizenz: GNU GENERAL PUBLIC LICENSE. Siehe LICENSE im Hauptordner.
 
-El-Team Termine 1.1.0
+El-Team Termine 1.2.0
 
 Termine wie Treffen, El-Café oder Ausfahrten mit Datum, Ort und Anmeldung.
 
@@ -47,3 +47,8 @@ Hinweise
 - Zeiten gelten in der Zeitzone der Website (Einstellungen → Allgemein).
 - Wiederkehrende Termine (z. B. jeden ersten Freitag) gibt es noch nicht;
   jeder Termin wird einzeln angelegt.
+
+Updates
+- Ab dieser Version kommen Updates aus den GitHub-Releases des Repos WP-Plugins
+  (Dashboard → Aktualisierungen). Manuell prüfen: in der Plugin-Liste "Nach Updates suchen"
+  oder Dashboard → Aktualisierungen → "Erneut prüfen". Release anlegen: RELEASING.md im Repo.

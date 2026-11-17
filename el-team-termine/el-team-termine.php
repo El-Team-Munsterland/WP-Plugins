@@ -2,19 +2,20 @@
 /**
  * Plugin Name: El-Team Termine
  * Description: Termine (Treffen, El-Café, Ausfahrten) mit Datum, Ort und Anmeldung; Übersicht kommender und vergangener Termine, Kalender-Download (iCal), Shortcode [termine] und Werkstatt-Öffnungen für die SpaceAPI.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Requires at least: 5.5
  * Requires PHP: 7.4
  * Author: Lukas Nacke
  * License: GPL-3.0-or-later
  * Text Domain: el-team-termine
+ * Update URI: https://github.com/El-Team-Munsterland/WP-Plugins/el-team-termine
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'EL_TEAM_TERMINE_VERSION', '1.1.0' );
+define( 'EL_TEAM_TERMINE_VERSION', '1.2.0' );
 define( 'EL_TEAM_TERMINE_FILE', __FILE__ );
 define( 'EL_TEAM_TERMINE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'EL_TEAM_TERMINE_URL', plugin_dir_url( __FILE__ ) );
@@ -25,6 +26,10 @@ require_once EL_TEAM_TERMINE_DIR . 'includes/oeffnung.php';
 require_once EL_TEAM_TERMINE_DIR . 'includes/admin.php';
 require_once EL_TEAM_TERMINE_DIR . 'includes/frontend.php';
 require_once EL_TEAM_TERMINE_DIR . 'includes/ical.php';
+require_once EL_TEAM_TERMINE_DIR . 'includes/github-updater.php';
+
+// Updates aus den GitHub-Releases (Tag el-team-termine/v…), siehe RELEASING.md im Repo
+new El_Team_GitHub_Updater_1( __FILE__ );
 
 /**
  * Beim Aktivieren: Inhaltstyp registrieren und Adressen (/termine/) neu aufbauen.

@@ -1,6 +1,6 @@
 Lizenz: GNU GENERAL PUBLIC LICENSE. Siehe LICENSE.
 
-SpaceAPI Status 2.0.0
+SpaceAPI Status 2.1.0
 
 Neu in 2.0: eigene öffentliche SpaceAPI
 - Unter /spaceapi.json (ohne schöne Permalinks: /?spaceapi_json=1) liefert die Website eine
@@ -58,3 +58,8 @@ Update von 1.x
   Update ausgeschaltet, bis sie eingeschaltet wird. Die Adresse /spaceapi.json wird beim
   ersten Seitenaufruf nach dem Update angelegt; falls nicht: Einstellungen → Permalinks
   einmal speichern.
+
+Updates
+- Ab dieser Version kommen Updates aus den GitHub-Releases des Repos WP-Plugins
+  (Dashboard → Aktualisierungen). Manuell prüfen: in der Plugin-Liste "Nach Updates suchen"
+  oder Dashboard → Aktualisierungen → "Erneut prüfen". Release anlegen: RELEASING.md im Repo.

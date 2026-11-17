@@ -1,0 +1,85 @@
+# Baut für ein Tag "<plugin-ordner>/v<version>" (z. B. el-team-termine/v1.2.0) das ZIP genau
+# dieses Plugins und legt ein GitHub-Release damit an. Die Plugins finden es über
+# includes/github-updater.php und bieten es in WordPress als Update an.
+# Ablauf und Beispiele: RELEASING.md
+name: Plugin-Release
+
+on:
+  push:
+    tags:
+      - '*/v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repo auschecken (mit Tags für die Änderungsliste)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tag prüfen
+        id: tag
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          PLUGIN="${TAG%%/v*}"
+          VERSION="${TAG#*/v}"
+          if ! printf '%s' "$PLUGIN" | grep -Eq '^[a-z0-9-]+$'; then
+            echo "::error::Ungültiger Plugin-Name im Tag: $TAG"; exit 1
+          fi
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+(\.[0-9]+)*$'; then
+            echo "::error::Ungültige Version im Tag: $TAG (erwartet z. B. $PLUGIN/v1.2.0)"; exit 1
+          fi
+          if [ ! -f "$PLUGIN/$PLUGIN.php" ]; then
+            echo "::error::Kein Plugin $PLUGIN/$PLUGIN.php im Repo"; exit 1
+          fi
+          KOPF=$(grep -m1 -E '^[[:space:]]*\*?[[:space:]]*Version:' "$PLUGIN/$PLUGIN.php" | sed -E 's/.*Version:[[:space:]]*//' | tr -d '\r[:space:]')
+          if [ "$KOPF" != "$VERSION" ]; then
+            echo "::error::Version im Plugin-Kopf ($KOPF) passt nicht zum Tag ($VERSION)"; exit 1
+          fi
+          if ! cmp -s lib/github-updater.php "$PLUGIN/includes/github-updater.php"; then
+            echo "::error::$PLUGIN/includes/github-updater.php weicht von lib/github-updater.php ab – bin/sync-updater.sh ausführen und einchecken"; exit 1
+          fi
+          echo "plugin=$PLUGIN" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: ZIP nur mit diesem Plugin bauen
+        env:
+          TAG: ${{ github.ref_name }}
+          PLUGIN: ${{ steps.tag.outputs.plugin }}
+        run: |
+          git archive --format=zip --prefix="$PLUGIN/" -o "$PLUGIN.zip" "$TAG:$PLUGIN"
+          unzip -l "$PLUGIN.zip"
+
+      - name: Änderungen seit dem letzten Release dieses Plugins
+        env:
+          TAG: ${{ github.ref_name }}
+          PLUGIN: ${{ steps.tag.outputs.plugin }}
+        run: |
+          VORHER=$(git tag -l "$PLUGIN/v*" --sort=-v:refname | grep -vxF "$TAG" | head -n 1)
+          {
+            if [ -n "$VORHER" ]; then
+              echo "Änderungen seit $VORHER:"
+              echo
+              git log --no-merges --format='- %s' "$VORHER..$TAG" -- "$PLUGIN"
+            else
+              echo "Erstes Release über GitHub."
+              echo
+              git log --no-merges --format='- %s' -n 20 "$TAG" -- "$PLUGIN"
+            fi
+          } > notizen.md
+          cat notizen.md
+
+      - name: Release anlegen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          PLUGIN: ${{ steps.tag.outputs.plugin }}
+          VERSION: ${{ steps.tag.outputs.version }}
+        run: |
+          NAME=$(grep -m1 -E '^[[:space:]]*\*?[[:space:]]*Plugin Name:' "$PLUGIN/$PLUGIN.php" | sed -E 's/.*Plugin Name:[[:space:]]*//' | tr -d '\r')
+          gh release create "$TAG" "$PLUGIN.zip" --title "$NAME $VERSION" --notes-file notizen.md --verify-tag
