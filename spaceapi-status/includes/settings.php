@@ -55,6 +55,7 @@ function spaceapi_status_defaults() {
 		'header_enabled'    => 0,
 		'header_title'      => 'Space Status',
 		'header_position'   => 'under_header',
+		'header_message'    => 0,
 		'field_labels'      => array(),
 		'public_enabled'    => 0,
 		'own'               => spaceapi_status_own_defaults(),
@@ -158,6 +159,7 @@ function spaceapi_status_sanitize_settings( $in ) {
 		'header_enabled'    => ! empty( $in['header_enabled'] ) ? 1 : 0,
 		'header_title'      => sanitize_text_field( $in['header_title'] ?? $d['header_title'] ),
 		'header_position'   => $pos,
+		'header_message'    => ! empty( $in['header_message'] ) ? 1 : 0,
 		'field_labels'      => $labels,
 		'public_enabled'    => ! empty( $in['public_enabled'] ) ? 1 : 0,
 		'own'               => $own,
@@ -331,6 +333,7 @@ function spaceapi_status_page() {
 			<table class="form-table" role="presentation">
 				<tr><th scope="row">Anzeige</th><td><label><input name="spaceapi_status_settings[header_enabled]" type="checkbox" value="1" <?php checked( $s['header_enabled'], 1 ); ?>> Im Header anzeigen</label></td></tr>
 				<tr><th scope="row">Titel</th><td><input name="spaceapi_status_settings[header_title]" type="text" class="regular-text" value="<?php echo esc_attr( $s['header_title'] ); ?>"></td></tr>
+				<tr><th scope="row">Statustext</th><td><label><input name="spaceapi_status_settings[header_message]" type="checkbox" value="1" <?php checked( $s['header_message'], 1 ); ?>> Statustext neben dem Status anzeigen</label><p class="description">Bei nicht geöffneter Werkstatt die nächste Öffnung aus den Terminen (wenn unten bei „Werkstatt-Öffnungen“ der Statustext eingeschaltet ist), sonst der eigene Statustext. Ein weitergegebener <code>state.message</code> der versteckten SpaceAPI hat Vorrang. Im Widget „SpaceAPI Kurzstatus“ und mit <code>[space_status show_message="yes"]</code> gibt es dieselbe Option.</p></td></tr>
 				<tr><th scope="row">Position</th><td><label><input name="spaceapi_status_settings[header_position]" type="radio" value="under_header" <?php checked( $s['header_position'], 'under_header' ); ?>> Direkt unter dem Header</label><br><label><input name="spaceapi_status_settings[header_position]" type="radio" value="after_body_open" <?php checked( $s['header_position'], 'after_body_open' ); ?>> Direkt nach dem &lt;body&gt;-Tag</label></td></tr>
 			</table>
 
@@ -372,7 +375,7 @@ function spaceapi_status_page() {
 
 		<hr>
 		<h2>Shortcodes</h2>
-		<p><code>[space_status]</code> – Öffnungsstatus</p><p><code>[spaceapi field="space"]</code> – beliebiges Feld</p><p><code>[spaceapi field="state.open" label="Status"]</code> – eigenes Label</p><p><code>[spaceapi field="location.lat"]</code> – Label aus den Einstellungen</p><p><code>[spaceapi field="state.open" label="Status" fallback="Nicht verfügbar"]</code></p>
+		<p><code>[space_status]</code> – Öffnungsstatus</p><p><code>[space_status show_message="yes"]</code> – mit Statustext, z. B. nächste Öffnung; <code>show_updated="no"</code> ohne „Zuletzt geändert“</p><p><code>[spaceapi field="space"]</code> – beliebiges Feld</p><p><code>[spaceapi field="state.open" label="Status"]</code> – eigenes Label</p><p><code>[spaceapi field="location.lat"]</code> – Label aus den Einstellungen</p><p><code>[spaceapi field="state.open" label="Status" fallback="Nicht verfügbar"]</code></p>
 		<p>Verschachtelte Felder: <code>state.open</code>, <code>location.lat</code>; Array-Elemente: z. B. <code>temperature.0.value</code>. Die Shortcodes lesen weiterhin die versteckte SpaceAPI.</p>
 	</div>
 	<?php

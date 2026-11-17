@@ -1,6 +1,6 @@
 Lizenz: GNU GENERAL PUBLIC LICENSE. Siehe LICENSE.
 
-SpaceAPI Status 2.1.0
+SpaceAPI Status 2.2.0
 
 Neu in 2.0: eigene öffentliche SpaceAPI
 - Unter /spaceapi.json (ohne schöne Permalinks: /?spaceapi_json=1) liefert die Website eine
@@ -36,7 +36,7 @@ Die Einstellungsseite zeigt eine Vorschau der öffentlichen SpaceAPI und weist a
 Pflichtfelder hin. Zusätzlich lässt sich die Ausgabe mit dem Validator auf spaceapi.io prüfen.
 
 Wie bisher (lesen weiterhin die versteckte SpaceAPI)
-- [space_status] für den Status
+- [space_status] für den Status, [space_status show_message="yes"] mit Statustext
 - Header-Anzeige direkt unter dem Header (Standard) oder nach dem <body>-Tag
 - Widget "SpaceAPI Kurzstatus"
 - Automatische Erkennung der aktuell gelieferten JSON-Felder, konfigurierbare Labels
@@ -63,3 +63,11 @@ Updates
 - Ab dieser Version kommen Updates aus den GitHub-Releases des Repos WP-Plugins
   (Dashboard → Aktualisierungen). Manuell prüfen: in der Plugin-Liste "Nach Updates suchen"
   oder Dashboard → Aktualisierungen → "Erneut prüfen". Release anlegen: RELEASING.md im Repo.
+
+2.2.0
+- Statustext auch auf der Website: in der Statusleiste (Einstellung "Statustext neben dem
+  Status anzeigen"), im Widget "SpaceAPI Kurzstatus" (Häkchen "Statustext anzeigen") und mit
+  [space_status show_message="yes"]. Regeln wie bei state.message: weitergegebener Text der
+  versteckten SpaceAPI hat Vorrang, sonst bei nicht geöffneter Werkstatt die nächste Öffnung
+  ("Nächste Öffnung: Fr., 4.12., 19:00–22:00 Uhr (El-Café im Dezember)"), sonst der eigene
+  Statustext. Standardmäßig aus, die bisherige Anzeige bleibt unverändert.
