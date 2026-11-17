@@ -43,7 +43,8 @@ function el_team_termine_is_archive() {
  * @param WP_Query $query Abfrage
  */
 function el_team_termine_archive_query( $query ) {
-	if ( is_admin() || ! $query->is_main_query() || ! ( $query->is_post_type_archive( 'termin' ) || $query->is_tax( 'terminart' ) ) ) {
+	// Feeds (/termine/feed/) bleiben bei WordPress' Sortierung: neu angekündigte Termine zuerst
+	if ( is_admin() || ! $query->is_main_query() || $query->is_feed() || ! ( $query->is_post_type_archive( 'termin' ) || $query->is_tax( 'terminart' ) ) ) {
 		return;
 	}
 	$zeitraum = 'vergangen' === $query->get( 'zeitraum' ) ? 'vergangen' : 'kommend';
@@ -113,6 +114,44 @@ function el_team_termine_date( $datum, $format, $post ) {
 	return '' === $format ? el_team_termin_zeit_text( $post ) : wp_date( $format, $d['beginn']->getTimestamp() );
 }
 add_filter( 'get_the_date', 'el_team_termine_date', 10, 3 );
+
+/**
+ * RSS-Feed: Termindatum im Titel, z. B. "El-Café im Dezember (Fr., 4.12.2026)",
+ * damit es in der Liste des Feedreaders sichtbar ist.
+ *
+ * @param string $titel Titel
+ * @return string
+ */
+function el_team_termine_feed_title( $titel ) {
+	$d = el_team_termin_daten();
+	if ( ! $d ) {
+		return $titel;
+	}
+	return $titel . ' (' . wp_date( 'D., j.n.Y', $d['beginn']->getTimestamp() ) . ')';
+}
+add_filter( 'the_title_rss', 'el_team_termine_feed_title' );
+
+/**
+ * RSS-Feed: Wann und Wo vor der Kurzbeschreibung.
+ *
+ * @param string $auszug Kurzbeschreibung
+ * @return string
+ */
+function el_team_termine_feed_excerpt( $auszug ) {
+	$d = el_team_termin_daten();
+	if ( ! $d ) {
+		return $auszug;
+	}
+	$zeilen = array( __( 'Wann:', 'el-team-termine' ) . ' ' . el_team_termin_zeit_text() );
+	if ( '' !== $d['ort'] ) {
+		$zeilen[] = __( 'Wo:', 'el-team-termine' ) . ' ' . $d['ort'];
+	}
+	if ( '' !== $d['status'] ) {
+		$zeilen[] = ucfirst( el_team_termin_status_liste()[ $d['status'] ] );
+	}
+	return esc_html( implode( ' · ', $zeilen ) ) . ( '' !== trim( $auszug ) ? ' – ' . $auszug : '' );
+}
+add_filter( 'the_excerpt_rss', 'el_team_termine_feed_excerpt' );
 
 /**
  * Link zu OpenStreetMap für eine Adresse (keine eingebettete Karte).

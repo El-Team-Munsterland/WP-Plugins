@@ -2,7 +2,7 @@
 /**
  * Plugin Name: El-Team Termine
  * Description: Termine (Treffen, El-Café, Ausfahrten) mit Datum, Ort und Anmeldung; Übersicht kommender und vergangener Termine, Kalender-Download (iCal), Shortcode [termine] und Werkstatt-Öffnungen für die SpaceAPI.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Requires at least: 5.5
  * Requires PHP: 7.4
  * Author: Lukas Nacke
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'EL_TEAM_TERMINE_VERSION', '1.2.0' );
+define( 'EL_TEAM_TERMINE_VERSION', '1.2.1' );
 define( 'EL_TEAM_TERMINE_FILE', __FILE__ );
 define( 'EL_TEAM_TERMINE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'EL_TEAM_TERMINE_URL', plugin_dir_url( __FILE__ ) );
