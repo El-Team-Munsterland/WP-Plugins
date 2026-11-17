@@ -2,7 +2,8 @@
 /**
  * Kalender-Export im iCalendar-Format (.ics):
  * ?el_termin_ics=123 für einen Termin, ?el_termin_ics=alle für alle kommenden und die
- * Termine der letzten 90 Tage (zum Abonnieren in Kalender-Apps).
+ * Termine der letzten 90 Tage (zum Abonnieren in Kalender-Apps), ?el_termin_ics=oeffnungen
+ * nur für die kommenden Werkstatt-Öffnungen (SpaceAPI feeds.calendar).
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -12,10 +13,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Adresse der .ics-Datei.
  *
- * @param int|WP_Post|null $post Termin; ohne Angabe der Kalender mit allen Terminen
+ * @param int|WP_Post|string|null $post Termin; "oeffnungen" für den Öffnungs-Kalender; ohne Angabe der Kalender mit allen Terminen
  * @return string URL
  */
 function el_team_termine_ics_url( $post = null ) {
+	if ( 'oeffnungen' === $post ) {
+		return add_query_arg( 'el_termin_ics', 'oeffnungen', home_url( '/' ) );
+	}
 	$wert = $post ? get_post( $post )->ID : 'alle';
 	return add_query_arg( 'el_termin_ics', $wert, home_url( '/' ) );
 }
@@ -137,6 +141,9 @@ function el_team_termine_ics_output() {
 			),
 		) ) );
 		$datei   = sanitize_title( get_bloginfo( 'name' ) ) . '-termine.ics';
+	} elseif ( 'oeffnungen' === $wert ) {
+		$termine = el_team_termine_oeffnungen( 50 );
+		$datei   = sanitize_title( get_bloginfo( 'name' ) ) . '-oeffnungen.ics';
 	} else {
 		$termin  = get_post( absint( $wert ) );
 		$termine = ( $termin && 'termin' === $termin->post_type && 'publish' === $termin->post_status ) ? array( $termin ) : array();
@@ -152,7 +159,7 @@ function el_team_termine_ics_output() {
 		'PRODID:-//' . el_team_termine_ics_text( get_bloginfo( 'name' ) ) . '//Termine//DE',
 		'CALSCALE:GREGORIAN',
 		'METHOD:PUBLISH',
-		'X-WR-CALNAME:' . el_team_termine_ics_text( get_bloginfo( 'name' ) . ' – ' . __( 'Termine', 'el-team-termine' ) ),
+		'X-WR-CALNAME:' . el_team_termine_ics_text( get_bloginfo( 'name' ) . ' – ' . ( 'oeffnungen' === $wert ? __( 'Werkstatt-Öffnungen', 'el-team-termine' ) : __( 'Termine', 'el-team-termine' ) ) ),
 	);
 	foreach ( $termine as $termin ) {
 		$zeilen = array_merge( $zeilen, el_team_termine_ics_event( $termin ) );
@@ -161,7 +168,7 @@ function el_team_termine_ics_output() {
 
 	nocache_headers();
 	header( 'Content-Type: text/calendar; charset=utf-8' );
-	header( 'Content-Disposition: ' . ( 'alle' === $wert ? 'inline' : 'attachment' ) . '; filename="' . $datei . '"' );
+	header( 'Content-Disposition: ' . ( in_array( $wert, array( 'alle', 'oeffnungen' ), true ) ? 'inline' : 'attachment' ) . '; filename="' . $datei . '"' );
 	echo implode( "\r\n", array_map( 'el_team_termine_ics_fold', $zeilen ) ) . "\r\n"; // phpcs:ignore WordPress.Security.EscapeOutput -- iCalendar, oben maskiert.
 	exit;
 }

@@ -83,6 +83,7 @@ function el_team_termine_render_meta_box( $post ) {
 				</select>
 			</td>
 		</tr>
+		<?php el_team_termine_oeffnung_feld( $post ); ?>
 	</table>
 	<?php
 }
@@ -154,6 +155,7 @@ function el_team_termine_save( $post_id ) {
 			update_post_meta( $post_id, $key, $wert );
 		}
 	}
+	el_team_termine_oeffnung_speichern( $post_id, $in );
 }
 add_action( 'save_post_termin', 'el_team_termine_save' );
 
@@ -190,6 +192,9 @@ function el_team_termine_column_content( $spalte, $post_id ) {
 		echo esc_html( '' !== $text ? $text : __( '– kein Datum –', 'el-team-termine' ) );
 		if ( '' !== $status ) {
 			echo ' <strong>(' . esc_html( el_team_termin_status_liste()[ $status ] ) . ')</strong>';
+		}
+		if ( el_team_termin_ist_oeffnung( $post_id ) ) {
+			echo '<br><span class="description">' . esc_html__( 'Werkstatt geöffnet', 'el-team-termine' ) . '</span>';
 		}
 	} elseif ( 'el_termin_ort' === $spalte ) {
 		echo esc_html( get_post_meta( $post_id, '_el_termin_ort', true ) );

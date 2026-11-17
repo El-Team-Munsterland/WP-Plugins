@@ -159,6 +159,10 @@ function el_team_termin_info_html( $post = null, $kompakt = false ) {
 					<?php endif; ?>
 				</dd>
 			<?php endif; ?>
+			<?php if ( el_team_termin_ist_oeffnung( $post ) && '' === $d['status'] ) : ?>
+				<dt><?php esc_html_e( 'Werkstatt', 'el-team-termine' ); ?></dt>
+				<dd><?php esc_html_e( 'geöffnet – komm einfach vorbei', 'el-team-termine' ); ?></dd>
+			<?php endif; ?>
 			<?php if ( ! $kompakt && '' !== $d['anmeldung'] ) : ?>
 				<dt><?php esc_html_e( 'Anmeldung', 'el-team-termine' ); ?></dt>
 				<dd><a href="<?php echo esc_url( $d['anmeldung'] ); ?>"><?php esc_html_e( 'Anmeldung und weitere Infos', 'el-team-termine' ); ?></a></dd>

@@ -5,7 +5,9 @@ This Plugins, like WordPress, is licensed under the GPL.
 
 ## Plugins
 
-- **spaceapi-status**: SpaceAPI-Status, Header-Anzeige und Shortcodes für SpaceAPI-Felder.
+- **spaceapi-status**: Eigene öffentliche SpaceAPI (v15) unter /spaceapi.json aus eigenen Angaben,
+  ausgewählten Feldern der versteckten SpaceAPI und Werkstatt-Öffnungen aus el-team-termine;
+  dazu Status-Anzeige, Header-Leiste und Shortcodes. Beschreibung in `spaceapi-status/README.txt`.
 - **el-team-termine**: Termine (Treffen, El-Café, Ausfahrten) mit Datum, Ort und Anmeldung,
   Übersicht unter /termine/, Kalender-Download (iCal) und Shortcode `[termine]`.
   Beschreibung in `el-team-termine/README.txt`.
