@@ -1,0 +1,143 @@
+/**
+ * El-Team Termine: Infokasten, Terminliste, Links der Übersicht.
+ * Nutzt die Farben des Themes (--el-color-…), sonst eigene Werte.
+ */
+
+/* Infokasten am Termin */
+.el-termin-info {
+	margin: 0 0 24px;
+	padding: 18px 22px;
+	border-radius: 10px;
+	background: var(--el-color-tint, #fffbe0);
+	border: 1px solid var(--el-color-tint-border, #f1e6a6);
+}
+
+.el-termin-info--kompakt {
+	padding: 12px 16px;
+	margin-bottom: 16px;
+}
+
+.el-termin-info__liste {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 6px 18px;
+	margin: 0;
+}
+
+.el-termin-info__liste dt {
+	font-weight: bold;
+}
+
+.el-termin-info__liste dd {
+	margin: 0;
+}
+
+.el-termin-info__kalender {
+	margin: 14px 0 0;
+}
+
+.el-termin-info__kalender a {
+	display: inline-block;
+	padding: 7px 16px;
+	border-radius: 999px;
+	background: var(--el-color-primary, #0073aa);
+	color: #ffffff;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.el-termin-info__kalender a:hover {
+	background: var(--el-color-primary-dark, #005a87);
+	color: #ffffff;
+}
+
+/* Abgesagt / verschoben */
+.el-termin-info__status {
+	display: inline-block;
+	margin: 0 0 10px;
+	padding: 2px 10px;
+	border-radius: 999px;
+	background: #b32d2e;
+	color: #ffffff;
+	font-weight: bold;
+	font-size: 0.875rem;
+}
+
+.el-termin-info.is-verschoben .el-termin-info__status {
+	background: #8a6d00;
+}
+
+.el-termin-info.is-abgesagt .el-termin-info__liste dd:first-of-type {
+	text-decoration: line-through;
+}
+
+/* Terminliste: Shortcode [termine], Startseite */
+.el-termine {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.el-termine__eintrag {
+	display: flex;
+	gap: 14px;
+	align-items: center;
+	padding: 10px 0;
+	border-bottom: 1px solid var(--el-color-line, #ece7cf);
+}
+
+.el-termine__eintrag:last-child {
+	border-bottom: 0;
+}
+
+.el-termine__datum {
+	flex-shrink: 0;
+	width: 3.2em;
+	padding: 4px 0;
+	border-radius: 8px;
+	background: var(--el-color-page, #ffec73);
+	text-align: center;
+	line-height: 1.1;
+}
+
+.el-termine__tag {
+	display: block;
+	font-size: 1.375rem;
+	font-weight: bold;
+}
+
+.el-termine__monat {
+	display: block;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.el-termine__titel {
+	display: block;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.el-termine__titel:hover {
+	text-decoration: underline;
+}
+
+.el-termine__meta {
+	display: block;
+	font-size: 0.875rem;
+	color: var(--el-color-muted, #666666);
+}
+
+.el-termine__status {
+	color: #b32d2e;
+}
+
+.el-termine__eintrag.is-abgesagt .el-termine__titel {
+	text-decoration: line-through;
+}
+
+/* Übersicht /termine/: Wechsel kommend/vergangen, Kalender abonnieren */
+.el-termine-links {
+	font-size: 0.9375rem;
+}
